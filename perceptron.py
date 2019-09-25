@@ -10,49 +10,65 @@ import numpy as np
 # learning rate: we take one
 class Perceptron():
     def __init__(self, dim):
+        # Initialize perceptron, set dim, initialize weights
         self.dim = dim
         self.weights = self.__initialize_weights(self.dim)
-        self.learning_rate = 1
 
-# function to initialize the weights with random data
-# returns dim size float or ndarray of floats
     def __initialize_weights(self, dim):
+        # function to initialize the weights with random data
+        # returns dim size float or ndarray of floats
         weights = np.random.random(dim+1)
         return weights
 
-# function that returns update for weights#
-    def predict(self, x_u):
-        x_u = x_u.insert(0,1)
-        return self.__sign(sum(self.weights*x_u))
+    def predict(self, x):
+        # function that makes a prediction of the label with current weights
+        x = self.__adjust_input_x(x)
+        y = np.zeros(len(x))
+        for i in range(len(x)):
+            y[i] = self.__softmax(np.sum(w*x[i]))
+        return y
 
-# function does the fitting
-# M is nr of updates or learning cycles
-
-    def fit(self, x, t):
-        
-
+    def fit(self, x, t, learning = None):
         if len(x[0]) != self.dim:
             print('Error: dimensions of input ({}) do not match to dimensions of Perceptron ({})'.format(len(x[0]), self.dim))
-        x = np.insert(x,0,1, axis=1)
-        z = x
-        for i in range(len(x)):
-            z[i] = x[i]*t[i]
-        M = [0] * len(x) # List for counting how many times item in x has been updated
-        M_old = []
-        while np.any(M_old != M): # If the update counting matrix remains the same it has converges
-            if np.sum(M) > 10000: break
-            M_old = np.copy(M)
-            for i in range(len(z)):
-                if np.sum(self.weights*z[i])<0:
-                    self.__update_weights(z[i])
-                    M[i] += 1
-        return np.sum(M)
+            return
+        x = self.__adjust_input_x(x)
+
+        if learning == 'gradient':
+            learning_function = self.__learning_gradient
+        elif learning == 'momentum':
+            learning_function = self.__learning_momentum
+        elif learning == 'decay':
+            learning_function = self.__learning_decay
+        elif learning == 'netwon':
+            learning_function = self.__learning_newton
+        elif learning == 'line':
+            learning_function = self.__learning_line
+        elif learning == 'conjugate':
+            learning_function = self.__learning_conjugate
+        else:
+            learning_function = self.__learning_gradient
+        E = []
+        while self.stopping_condition: 
+            learning_function()
+        return 
+
+    def __adjust_input_x(self, x):
+        return np.insert(x,0,1, axis=1)
+
+    def __cost(self, x, t, w):
+        # Calculates cost, given input x, weights w and target t
+        # Returns cost
+        N = len(x)
+        y = np.zeros(N)
+        for i in range(N):
+            y[i] = self.__softmax(np.sum(w*x[i]))
+        return -1/N * np.sum(t * np.log10(y) + (1-t) * np.log10(1-y))
 
 
-    def __softmax(self, a):
-        #Write softmax function
-        pass
-        return y
+    def __softmax(self, x):
+        # Calculates softmax of input x
+        return (1 + np.exp(-x))**(-1)
 
     def __learning_gradient(self):
         # Write gradient desent method for updating weights
