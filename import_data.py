@@ -17,8 +17,3 @@ def loadX(fnimg):
 	return np.frombuffer(f.read(), dtype = np.uint8).reshape((-1, 28*28))
 
 
-if __name__ == "__main__":
-	trainX = loadX("data/train-images-idx3-ubyte.gz")
-	trainY = loadY("data/train-labels-idx1-ubyte.gz")
-	testX = loadX("data/t10k-images-idx3-ubyte.gz")
-	testY = loadY("data/t10k-labels-idx1-ubyte.gz")
