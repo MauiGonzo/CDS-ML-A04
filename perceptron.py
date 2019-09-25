@@ -1,5 +1,5 @@
 import numpy as np
-# assignment 3: make a perceptron
+# assignment 4: make a perceptron
 # by Remco Volmer and  Maurice Verbrugge
 # comments refer to slides (41 etc) from the course
 # class defenition
@@ -29,6 +29,8 @@ class Perceptron():
 # M is nr of updates or learning cycles
 
     def fit(self, x, t):
+        
+
         if len(x[0]) != self.dim:
             print('Error: dimensions of input ({}) do not match to dimensions of Perceptron ({})'.format(len(x[0]), self.dim))
         x = np.insert(x,0,1, axis=1)
@@ -46,15 +48,35 @@ class Perceptron():
                     M[i] += 1
         return np.sum(M)
 
-    def __update_weights(self, z_i):
-        self.weights += self.learning_rate * z_i
 
-# signature function, we could use a default but this gives more options
-    def __sign(self, a):
-        y = np.zeros(len(a))
-        for i in range(len(a)):
-            if a[i] >=0:
-                y[i] = 1
-            else:
-                y[i] = -1
+    def __softmax(self, a):
+        #Write softmax function
+        pass
         return y
+
+    def __learning_gradient(self):
+        # Write gradient desent method for updating weights
+
+        pass
+        # return delta_weights
+
+    def __learning_momentum(self):
+        # Write momentum for updating weights
+        pass
+        # return delta_weights
+
+    def __learning_decay(self):
+        pass
+        # return delta_weights
+
+    def __learning_newton(self):
+        pass
+        # return delta_weights
+
+    def __learning_line(self):
+        pass
+        # return delta_weights
+
+    def __learning_conjugate(self):
+        pass
+        # return delta_weights
