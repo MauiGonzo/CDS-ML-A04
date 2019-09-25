@@ -22,7 +22,7 @@ class Perceptron():
 
 # function that returns update for weights#
     def predict(self, x_u):
-        x_u = x_u.insert(0,1)
+        x_u.insert(0,1)
         return self.__sign(sum(self.weights*x_u))
 
 # function does the fitting
