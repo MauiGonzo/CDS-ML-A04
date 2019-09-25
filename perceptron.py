@@ -21,11 +21,13 @@ class Perceptron():
         weights = np.random.random(dim+1)
         return weights
 
+
     def predict(self, x):
         # function that makes a prediction of the label with current weights
         if len(x[0]) == self.dim:
             x = self.__adjust_input_x(x)
         elif len(x[0]) != self.dim+1:
+
             print('Error: dimensions of input ({}) do not match to dimensions of Perceptron ({})'.format(len(x[0]), self.dim))
         y = np.zeros(len(x))
         for i in range(len(x)):
