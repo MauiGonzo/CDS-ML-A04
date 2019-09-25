@@ -12,7 +12,9 @@ testY = import_data.loadY("data/t10k-labels-idx1-ubyte.gz")
 
 # Select 3 and 7 numbers X,Y
 
-for i in methods:
+model = perceptron.Perceptron()
+
+# for i in methods:
         #fit, for different methods, record time
 
 #test
