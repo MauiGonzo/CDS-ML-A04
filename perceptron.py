@@ -13,6 +13,7 @@ class Perceptron():
         # Initialize perceptron, set dim, initialize weights
         self.dim = dim
         self.weights = self.__initialize_weights(self.dim)
+        self.stopping_condition = False
 
     def __initialize_weights(self, dim):
         # function to initialize the weights with random data
@@ -52,7 +53,7 @@ class Perceptron():
         else:
             learning_function = self.__learning_gradient
         E = []
-        while self.stopping_condition:
+        while not self.stopping_condition:
             y = self.predict(x)
             E.append(self.__cost(x, y, t))
             delta_weights = learning_function(x, y, t, delta_weights)
@@ -79,6 +80,8 @@ class Perceptron():
         delta_w = np.zeros(self.dim+1)
         for i in range(self.dim+1):
             delta_w = - learning_rate * self.__gradient(x[:,i], y, t)
+        if np.all(delta_w == 0):
+            self.stopping_condition = True
         return delta_w
 
     def __learning_momentum(self):
@@ -104,7 +107,7 @@ class Perceptron():
 
     def __gradient(self, x_i, y, t):
         # inputs dim i of x, predict y, true label t
-        N = len(x) # Number of samples
+        N = len(x_i) # Number of samples
         return np.sum((y-t)*x_i) / N
 
     def __hessian(self):
