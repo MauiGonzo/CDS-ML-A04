@@ -22,10 +22,13 @@ class Perceptron():
 
     def predict(self, x):
         # function that makes a prediction of the label with current weights
-        x = self.__adjust_input_x(x)
+        if len(x[0]) == self.dim:
+            x = self.__adjust_input_x(x)
+        elif len(x[0]) != self.dim+1:
+            print('Error: dimensions of input ({}) do not match to dimensions of Perceptron ({})'.format(len(x[0]), self.dim))
         y = np.zeros(len(x))
         for i in range(len(x)):
-            y[i] = self.__softmax(np.sum(w*x[i]))
+            y[i] = self.__softmax(np.sum(self.weights*x[i]))
         return y
 
     def fit(self, x, t, learning = None):
@@ -49,20 +52,21 @@ class Perceptron():
         else:
             learning_function = self.__learning_gradient
         E = []
-        while self.stopping_condition: 
-            learning_function()
+        while self.stopping_condition:
+            y = self.predict(x)
+            E.append(self.__cost(x, y, t))
+            delta_weights = learning_function(x, y, t, delta_weights)
+            self.weights += delta_weights
+            
         return 
 
     def __adjust_input_x(self, x):
         return np.insert(x,0,1, axis=1)
 
-    def __cost(self, x, t, w):
-        # Calculates cost, given input x, weights w and target t
+    def __cost(self, x, y, t):
+        # Calculates cost, given input x, prediction y and target t
         # Returns cost
         N = len(x)
-        y = np.zeros(N)
-        for i in range(N):
-            y[i] = self.__softmax(np.sum(w*x[i]))
         return -1/N * np.sum(t * np.log10(y) + (1-t) * np.log10(1-y))
 
 
@@ -70,11 +74,12 @@ class Perceptron():
         # Calculates softmax of input x
         return (1 + np.exp(-x))**(-1)
 
-    def __learning_gradient(self):
-        # Write gradient desent method for updating weights
-
-        pass
-        # return delta_weights
+    def __learning_gradient(self, x, y, t, dW = None):
+        learning_rate = 1
+        delta_w = np.zeros(self.dim+1)
+        for i in range(self.dim+1):
+            delta_w = - learning_rate * self.__gradient(x[:,i], y, t)
+        return delta_w
 
     def __learning_momentum(self):
         # Write momentum for updating weights
@@ -96,3 +101,11 @@ class Perceptron():
     def __learning_conjugate(self):
         pass
         # return delta_weights
+
+    def __gradient(self, x_i, y, t):
+        # inputs dim i of x, predict y, true label t
+        N = len(x) # Number of samples
+        return np.sum((y-t)*x_i) / N
+
+    def __hessian(self):
+        pass
