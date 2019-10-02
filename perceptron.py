@@ -64,7 +64,7 @@ class Perceptron():
         elif learning == 'decay':
             learning_function = self.__learning_decay
             self.lam = 0.1
-        elif learning == 'netwon':
+        elif learning == 'newton':
             learning_function = self.__learning_newton
         elif learning == 'line':
             learning_function = self.__learning_line
@@ -107,7 +107,7 @@ class Perceptron():
         # return delta_weights
         return delta_w
 
-    def __learning_decay(self):
+    def __learning_decay(self, x, y, t):
         # now add weight decay term and use the momentum learning method
         labda = 0.1
         learning_rate = 1
@@ -118,15 +118,12 @@ class Perceptron():
         # return delta_weights
         return delta_w
 
-    def __learning_newton(self):
-        pass
-        # return delta_weights
+    def __learning_newton(self, x, y, t):
+        hessian = self.__hessian(x, y)
+        gradient = self.__gradient(x, y, t)
+        return - np.sum(np.linalg.inv(hessian), axis=-1) * gradient
 
-    def __learning_line(self):
-        pass
-        # return delta_weights
-
-    def __learning_conjugate(self):
+    def __learning_conjugate(self, x, y, t):
         pass
         # return delta_weights
 
@@ -159,4 +156,4 @@ class Perceptron():
             decay = self.lam / (self.dim + 1)
         else:
             decay = 0
-        return np.sum(x[:,i] * y (1 - y) * x[:,j])/N + decay
+        return np.sum(x[:,i] * y * (1 - y) * x[:,j])/N + decay
