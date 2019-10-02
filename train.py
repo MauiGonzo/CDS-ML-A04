@@ -36,7 +36,8 @@ trainLabel_t = np.array(trainLabel_t)
 model = perceptron.Perceptron(len(trainX_t[0]))
 
 #E = model.fit(trainX_t, trainLabel_t, learning = 'gradient', epochs=100)
-E = model.fit(trainX_t, trainLabel_t, learning = 'momentum', epochs=100)
+#E = model.fit(trainX_t, trainLabel_t, learning = 'momentum', epochs=100)
+E = model.fit(trainX_t, trainLabel_t, learning = 'decay', epochs=100)
 
 plt.plot(range(len(E)), E)
 plt.title('Lowest cost: {}'.format(min(E)))
