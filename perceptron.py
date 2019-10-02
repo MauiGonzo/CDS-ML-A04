@@ -97,24 +97,28 @@ class Perceptron():
             self.stopping_condition = True
         return delta_w
 
-    def __learning_momentum(self, x, t):
+    def __learning_momentum(self, x, y, t, dW = None):
         # momentum learning method for updating weights
         learning_rate = 1
         #choose momentum factor alpha - assignment says you have to try values
         alpha = 0.1
         #calculates gradient and add the momentum
-        delta_w = - learning_rate * self._gradient(x, y, t) + alpha * self._gradient(x, y, t)
+        delta_w = - learning_rate * self.__gradient(x, y, t) + alpha * self.__gradient(x, y, t)
         # return delta_weights
         return delta_w
 
+<<<<<<< HEAD
     def __learning_decay(self, x, y, t):
+=======
+    def __learning_decay(self, x, y, t, dW = None):
+>>>>>>> 363ca1cdd388dce19adfac68728f2bd7dbc2f86d
         # now add weight decay term and use the momentum learning method
         labda = 0.1
         learning_rate = 1
         # choose momentum factor alpha - assignment says you have to try values
         alpha = 0.1
         # calculates gradient and add the momentum
-        delta_w = - learning_rate * self._gradient(x, y, t) + alpha * self._gradient(x, y, t)
+        delta_w = - learning_rate * self.__gradient(x, y, t) + alpha * self.__gradient(x, y, t)
         # return delta_weights
         return delta_w
 
