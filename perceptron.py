@@ -79,7 +79,7 @@ class Perceptron():
         # Returns cost
         N = len(x)
         if self.learning == 'decay':
-            decay = self.lam * np.sum(weights**2) / (2*(self.dim+1))
+            decay = self.lam * np.sum(self.weights**2) / (2*(self.dim+1))
         else:
             decay = 0
         return -1/N * np.sum(t * np.log10(y) + (1-t) * np.log10(1 - y)) + decay
