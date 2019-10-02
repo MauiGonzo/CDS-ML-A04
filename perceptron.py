@@ -142,6 +142,7 @@ class Perceptron():
 
 
     def __hessian_ij(self, i, j, x, y):
+        N = len(x) # Number of samples
         if self.learning == 'decay' and i == j:
             decay = self.lam / (self.dim + 1)
         else:
