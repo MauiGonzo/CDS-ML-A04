@@ -79,7 +79,7 @@ class Perceptron():
         # Returns cost
         N = len(x)
         if self.learning == 'decay':
-            decay = self.lam * np.sum(weights**2) / (2*(self.dim+1)) 
+            decay = self.lam * np.sum(weights**2) / (2*(self.dim+1))
         else:
             decay = 0
         return -1/N * np.sum(t * np.log10(y) + (1-t) * np.log10(1 - y)) + decay
@@ -97,14 +97,26 @@ class Perceptron():
             self.stopping_condition = True
         return delta_w
 
-    def __learning_momentum(self):
-        # Write momentum for updating weights
-        pass
+    def __learning_momentum(self, x, t):
+        # momentum learning method for updating weights
+        learning_rate = 1
+        #choose momentum factor alpha - assignment says you have to try values
+        alpha = 0.1
+        #calculates gradient and add the momentum
+        delta_w = - learning_rate * self._gradient(x, y, t) + alpha * self._gradient(x, y, t)
         # return delta_weights
+        return delta_w
 
     def __learning_decay(self):
-        pass
+        # now add weight decay term and use the momentum learning method
+        labda = 0.1
+        learning_rate = 1
+        # choose momentum factor alpha - assignment says you have to try values
+        alpha = 0.1
+        # calculates gradient and add the momentum
+        delta_w = - learning_rate * self._gradient(x, y, t) + alpha * self._gradient(x, y, t)
         # return delta_weights
+        return delta_w
 
     def __learning_newton(self):
         pass
