@@ -42,13 +42,14 @@ class Perceptron():
         self.learning = learning
         learning_function = self.__get_learning_method(self.learning)
         E = []
-        bar = progressbar.ProgressBar(max_value=progressbar.UnknownLength)
+#        bar = progressbar.ProgressBar(self.max_value = progressbar.UnknownLength)
+
         while not self.stopping_condition:
             y = self.predict(x)
             E.append(self.__cost(x, y, t))
             delta_weights = learning_function(x, y, t)
             self.weights += delta_weights
-            bar.update(len(E))
+        #    bar.update(len(E))
             if len(E) == epochs:
                 self.stopping_condition = True
         return E
@@ -107,11 +108,8 @@ class Perceptron():
         # return delta_weights
         return delta_w
 
-<<<<<<< HEAD
-    def __learning_decay(self, x, y, t):
-=======
+
     def __learning_decay(self, x, y, t, dW = None):
->>>>>>> 363ca1cdd388dce19adfac68728f2bd7dbc2f86d
         # now add weight decay term and use the momentum learning method
         labda = 0.1
         learning_rate = 1
@@ -126,6 +124,11 @@ class Perceptron():
         hessian = self.__hessian(x, y)
         gradient = self.__gradient(x, y, t)
         return - np.sum(np.linalg.inv(hessian), axis=-1) * gradient
+
+    def __learning_line(self,x ,y, t, dW = None):
+        #write gradient method with line search
+        pass
+        # return delta_weights
 
     def __learning_conjugate(self, x, y, t):
         pass
