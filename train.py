@@ -34,15 +34,12 @@ for i in range(len(trainLabel)):
 trainX_t = np.array(trainX_t)/np.amax(trainX_t)
 trainLabel_t = np.array(trainLabel_t)
 
-model = perceptron.Perceptron(len(trainX_t[0]))
-
 def grad_algo_testing(learing_type, nr_epochs):
      model = perceptron.Perceptron(len(trainX_t[0]))
      t1_start = perf_counter()
      E = model.fit(trainX_t, trainLabel_t, learning = learing_type, epochs=nr_epochs)
-     E_test = model.
      t1_stop = perf_counter()
-     print("Running time for", learing_type, " = ", t1_stop - t1t1_start, "seconds" )
+     print("Running time for", learing_type, " = ", t1_stop - t1_start, "seconds" )
      print("results in E_training: ", E)
      plt.plot(range(len(E)), E)
      plt.title('Lowest cost: {}'.format(min(E)))
