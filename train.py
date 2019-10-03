@@ -11,15 +11,7 @@ testX = import_data.loadX("data/t10k-images-idx3-ubyte.gz")
 testLabel = import_data.loadY("data/t10k-labels-idx1-ubyte.gz")
 
 
-# Select 3 and 7 numbers X,Y
-trainLabelT = np.zeros(len(trainLabel))
-trainLabelS = np.zeros(len(trainLabel))
-for i in range(len(trainLabel)):
-        if trainLabel[i] == 3:
-                trainLabelT[i] = 1
-        if trainLabel[i] == 7:
-                trainLabelS[i] = 1
-
+'Select 3 and 7 from training set'
 trainX_t = []
 trainLabel_t = []
 for i in range(len(trainLabel)):
@@ -30,14 +22,38 @@ for i in range(len(trainLabel)):
                 trainX_t.append(trainX[i])
                 trainLabel_t.append(1)
 
+'Select 3 and 7 from test set'
+testX_t = []
+testLabel_t = []
+for i in range(len(testLabel)):
+        if testLabel[i] == 3:
+                testX_t.append(testX[i])
+                testLabel_t.append(0)
+        elif testLabel[i] == 7:
+                testX_t.append(testX[i])
+                testLabel_t.append(1)
+
+'Normalize data sets'
 trainX_t = np.array(trainX_t)/np.amax(trainX_t)
 trainLabel_t = np.array(trainLabel_t)
 
-model = perceptron.Perceptron(len(trainX_t[0]))
+testX_t = np.array(testX_t)/np.amax(testX_t)
+testLabel_t = np.array(testLabel_t)
 
-#E = model.fit(trainX_t, trainLabel_t, learning = 'gradient', epochs=100)
+
+'Make models'
+model_gradient = perceptron.Perceptron(len(trainX_t[0]))
+model_momentum = perceptron.Perceptron(len(trainX_t[0]))
+model_decay = perceptron.Perceptron(len(trainX_t[0]))
+model_newton = perceptron.Perceptron(len(trainX_t[0]))
+model_line = perceptron.Perceptron(len(trainX_t[0]))
+model_conjugate = perceptron.Perceptron(len(trainX_t[0]))
+
+
+
+E_train_gradient = model_gradient.fit(trainX_t, trainLabel_t, learning = 'gradient', epochs=100)
 #E = model.fit(trainX_t, trainLabel_t, learning = 'momentum', epochs=100)
-E = model.fit(trainX_t, trainLabel_t, learning = 'decay', epochs=100)
+# E = model.fit(trainX_t, trainLabel_t, learning = 'decay', epochs=10)
 
 plt.plot(range(len(E)), E)
 plt.title('Lowest cost: {}'.format(min(E)))
