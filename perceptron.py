@@ -34,24 +34,28 @@ class Perceptron():
             y[i] = self.__softmax(np.sum(self.weights*x[i]))
         return y
 
-    def fit(self, x, t, learning = None, epochs = 1000):
+    def fit(self, x, t, x_val, t_val, learning = None, epochs = 1000):
         if len(x[0]) != self.dim:
             print('Error: dimensions of input ({}) do not match to dimensions of Perceptron ({})'.format(len(x[0]), self.dim))
             return
         x = self.__adjust_input_x(x)
+        x_val = self.__adjust_input_x(x_val)
         self.learning = learning
         learning_function = self.__get_learning_method(self.learning)
         E = []
+        E_val = []
         bar = progressbar.ProgressBar(max_value=progressbar.UnknownLength)
         while not self.stopping_condition:
             y = self.predict(x)
+            y_val = self.predict(x_val)
             E.append(self.__cost(x, y, t))
+            E_val.append(self.__cost(x_val, y_val, t_val))
             delta_weights = learning_function(x, y, t)
             self.weights += delta_weights
             bar.update(len(E))
             if len(E) == epochs:
                 self.stopping_condition = True
-        return E
+        return E, E_val
 
     def __adjust_input_x(self, x):
         return np.insert(x,0,1, axis=1)
@@ -107,11 +111,7 @@ class Perceptron():
         # return delta_weights
         return delta_w
 
-<<<<<<< HEAD
-    def __learning_decay(self, x, y, t):
-=======
     def __learning_decay(self, x, y, t, dW = None):
->>>>>>> 363ca1cdd388dce19adfac68728f2bd7dbc2f86d
         # now add weight decay term and use the momentum learning method
         labda = 0.1
         learning_rate = 1

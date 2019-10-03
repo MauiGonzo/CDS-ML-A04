@@ -51,12 +51,14 @@ model_conjugate = perceptron.Perceptron(len(trainX_t[0]))
 
 
 
-E_train_gradient = model_gradient.fit(trainX_t, trainLabel_t, learning = 'gradient', epochs=100)
+E_train_gradient, E_test_gradient = model_gradient.fit(trainX_t, trainLabel_t, testX_t, testLabel_t, learning = 'gradient', epochs=1000)
 #E = model.fit(trainX_t, trainLabel_t, learning = 'momentum', epochs=100)
 # E = model.fit(trainX_t, trainLabel_t, learning = 'decay', epochs=10)
 
-plt.plot(range(len(E)), E)
-plt.title('Lowest cost: {}'.format(min(E)))
+plt.plot(range(len(E_train_gradient)), E_train_gradient, label='Train')
+plt.plot(range(len(E_test_gradient)), E_test_gradient, label='Test')
+plt.title('Lowest cost train: {}, lowest cost test: {}'.format(np.round(min(E_train_gradient), 4), np.round(min(E_test_gradient), 4)))
+plt.legend()
 plt.show()
 
 
