@@ -1,5 +1,6 @@
 import numpy as np
 import progressbar
+from scipy import optimize
 # assignment 4: make a perceptron
 # by Remco Volmer and  Maurice Verbrugge
 # comments refer to slides (41 etc) from the course
@@ -128,10 +129,23 @@ class Perceptron():
         gradient = self.__gradient(x, y, t)
         return -1*np.linalg.inv(hessian).dot(gradient)
 
-    def __learning_line(self,x ,y, t, dW = None):
-        #write gradient method with line search
-        pass
-        # return delta_weights
+    def __learning_line(self, x, y, t, dW = None):
+        d = -1 * self.__gradient(x, y, t)
+        gamma = 1
+        res = optimize.minimize_scalar(self.__cost_line_search, args=[x,t,d])
+        return res.x * d
+
+
+    def __cost_line_search(self, gamma, args):
+        x = args[0]
+        t = args[1]
+        d = args[2]
+        N = len(x)
+        y = np.zeros(N, dtype='float64')
+        for i in range(len(x)):
+            y[i] = self.__softmax(np.sum((self.weights + gamma*d)*x[i]))
+        return -1/N * np.sum(np.where(t == 1, np.log(y + 1e-50), np.log(1-y+1e-50)))
+
 
     def __learning_conjugate(self, x, y, t):
         pass
