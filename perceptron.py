@@ -50,10 +50,9 @@ class Perceptron():
             y = self.predict(x)
             y_val = self.predict(x_val)
             E.append(self.__cost(x, y, t))
-            print('E: {}, y: min: {}, max {}'.format(E[-1], np.amin(y), np.amax(y)))
             E_val.append(self.__cost(x_val, y_val, t_val))
-            delta_weights = learning_function(x, y, t)
-            self.weights += delta_weights
+            print('Epoch: {:3}, E train: {}, E test: {}'.format(len(E), np.round(E[-1],6), np.round(E_val[-1],6)))
+            self.weights += learning_function(x, y, t)
             # bar.update(len(E))
             if len(E) == epochs:
                 self.stopping_condition = True
@@ -96,14 +95,14 @@ class Perceptron():
         # Calculates softmax of input x
         return (1 + np.exp(-x))**(-1)
 
-    def __learning_gradient(self, x, y, t, dW = None):
+    def __learning_gradient(self, x, y, t):
         learning_rate = 1
         delta_w = - learning_rate * self.__gradient(x, y, t)
         if np.all(delta_w == 0):
             self.stopping_condition = True
         return delta_w
 
-    def __learning_momentum(self, x, y, t, dW = None):
+    def __learning_momentum(self, x, y, t):
         # momentum learning method for updating weights
         learning_rate = 1
         #choose momentum factor alpha - assignment says you have to try values
@@ -113,9 +112,8 @@ class Perceptron():
         # return delta_weights
         return delta_w
 
-    def __learning_decay(self, x, y, t, dW = None):
+    def __learning_decay(self, x, y, t):
         # now add weight decay term and use the momentum learning method
-        labda = 0.1
         learning_rate = 1
         # choose momentum factor alpha - assignment says you have to try values
         alpha = 0.1
@@ -129,17 +127,14 @@ class Perceptron():
         gradient = self.__gradient(x, y, t)
         return -1*np.linalg.inv(hessian).dot(gradient)
 
-    def __learning_line(self, x, y, t, dW = None):
+    def __learning_line(self, x, y, t):
         d = -1 * self.__gradient(x, y, t)
         gamma = 1
         res = optimize.minimize_scalar(self.__cost_line_search, args=[x,t,d])
         return res.x * d
 
-
     def __cost_line_search(self, gamma, args):
-        x = args[0]
-        t = args[1]
-        d = args[2]
+        x, t, d = args
         N = len(x)
         y = np.zeros(N, dtype='float64')
         for i in range(len(x)):
@@ -148,8 +143,25 @@ class Perceptron():
 
 
     def __learning_conjugate(self, x, y, t):
+        if 'self.d' not in globals():
+            self.d = -1 * self.__gradient(x, y, t)
+        else:
+            self.d = -1 * self.__gradient(x, y, t) + self.__polak_ribiere() * self.d
+        gamma = 1
+        res = optimize.minimize_scalar(self.__cost_line_search, args=[x,t,self.d])
+        self.weights_old = np.copy(self.weights)
+        return res.x * self.d
+
+    def __polak_ribiere(self):
+        weights_temp = np.copy(self.weights)
+        self.weights = self.weights_old
+        g_w0 = self.__gradient(x,y,t)
+        self.weights = np.copy(weights_temp)
+        g_w1 = self.__gradient(x,y,t)
+        return (g_w1 - g_w0).dot(g_w1)/np.sum(g_w1*g_w1)
+
+    def __learning_stochastic(self, x, y, t):
         pass
-        # return delta_weights
 
     def __gradient(self, x, y, t):
         g = np.zeros((self.dim+1))

@@ -61,7 +61,9 @@ def grad_algo_testing(learing_type, nr_epochs):
 # grad_algo_testing('gradient', 10)
 # grad_algo_testing('momentum', 10)
 # grad_algo_testing('decay',    10)
-grad_algo_testing('newton', 10)
+# grad_algo_testing('newton', 10)
+# grad_algo_testing('line', 10)
+grad_algo_testing('conjugate', 10)
 #
 # print('Training gradient:')
 # E_train_gradient, E_test_gradient = model_gradient.fit(trainX_t, trainLabel_t, testX_t, testLabel_t, learning = 'gradient', epochs=10)
