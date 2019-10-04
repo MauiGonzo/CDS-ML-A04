@@ -111,6 +111,10 @@ class Perceptron():
         # return delta_weights
         return delta_w
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> dd29b935ad958612bf01701633888f31f4d50b53
     def __learning_decay(self, x, y, t, dW = None):
         # now add weight decay term and use the momentum learning method
         labda = 0.1
@@ -126,6 +130,11 @@ class Perceptron():
         hessian = self.__hessian(x, y)
         gradient = self.__gradient(x, y, t)
         return - np.sum(np.linalg.inv(hessian), axis=-1) * gradient
+
+    def __learning_line(self,x ,y, t, dW = None):
+        #write gradient method with line search
+        pass
+        # return delta_weights
 
     def __learning_conjugate(self, x, y, t):
         pass

@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+from time import perf_counter
 import perceptron
 import import_data
 
@@ -37,6 +38,7 @@ for i in range(len(testLabel)):
 trainX_t = np.array(trainX_t)/np.amax(trainX_t)
 trainLabel_t = np.array(trainLabel_t)
 
+<<<<<<< HEAD
 testX_t = np.array(testX_t)/np.amax(testX_t)
 testLabel_t = np.array(testLabel_t)
 
@@ -49,6 +51,27 @@ model_newton = perceptron.Perceptron(len(trainX_t[0]))
 model_line = perceptron.Perceptron(len(trainX_t[0]))
 model_conjugate = perceptron.Perceptron(len(trainX_t[0]))
 
+=======
+def grad_algo_testing(learing_type, nr_epochs):
+     model = perceptron.Perceptron(len(trainX_t[0]))
+     t1_start = perf_counter()
+     E = model.fit(trainX_t, trainLabel_t, learning = learing_type, epochs=nr_epochs)
+     t1_stop = perf_counter()
+     print("Running time for", learing_type, " = ", t1_stop - t1_start, "seconds" )
+     print("results in E_training: ", E)
+     plt.plot(range(len(E)), E)
+     plt.title('Lowest cost: {}'.format(min(E)))
+     plt.show()
+     # no returns
+
+#E = model.fit(trainX_t, trainLabel_t, learning = 'momentum', epochs=100)
+
+#E = model.fit(trainX_t, trainLabel_t, learning = 'decay', epochs=100)
+#use the gradient algorithm testing function,
+grad_algo_testing('gradient', 10)
+#grad_algo_testing('momentum', 10)
+#grad_algo_testing('decay',    10)
+>>>>>>> dd29b935ad958612bf01701633888f31f4d50b53
 
 print('Training gradient:')
 E_train_gradient, E_test_gradient = model_gradient.fit(trainX_t, trainLabel_t, testX_t, testLabel_t, learning = 'gradient', epochs=10)
