@@ -44,12 +44,13 @@ testLabel_t = np.array(testLabel_t)
 def grad_algo_testing(learing_type, nr_epochs):
      model = perceptron.Perceptron(len(trainX_t[0]))
      t1_start = perf_counter()
-     E = model.fit(trainX_t, trainLabel_t, testX_t, testLabel_t, learning = learing_type, epochs=nr_epochs)
+     E, E_val = model.fit(trainX_t, trainLabel_t, testX_t, testLabel_t, learning = learing_type, epochs=nr_epochs)
      t1_stop = perf_counter()
-     print("Running time for", learing_type, " = ", t1_stop - t1_start, "seconds" )
-     print("results in E_training: ", E)
-     plt.plot(range(len(E)), E)
+     print("Running time for {} = {} seconds".format(learing_type, np.round(t1_stop - t1_start, 2)))
+     plt.plot(E, label='Train')
+     plt.plot(E_val, label='Test')
      plt.title('Lowest cost: {}'.format(min(E)))
+     plt.legend()
      plt.show()
      # no returns
 
@@ -57,9 +58,10 @@ def grad_algo_testing(learing_type, nr_epochs):
 
 #E = model.fit(trainX_t, trainLabel_t, learning = 'decay', epochs=100)
 #use the gradient algorithm testing function,
-grad_algo_testing('gradient', 10)
-#grad_algo_testing('momentum', 10)
-#grad_algo_testing('decay',    10)
+# grad_algo_testing('gradient', 10)
+# grad_algo_testing('momentum', 10)
+# grad_algo_testing('decay',    10)
+grad_algo_testing('newton', 10)
 #
 # print('Training gradient:')
 # E_train_gradient, E_test_gradient = model_gradient.fit(trainX_t, trainLabel_t, testX_t, testLabel_t, learning = 'gradient', epochs=10)

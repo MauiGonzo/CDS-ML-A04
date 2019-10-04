@@ -29,7 +29,7 @@ class Perceptron():
             x = self.__adjust_input_x(x)
         elif len(x[0]) != self.dim+1:
             print('Error: dimensions of input ({}) do not match to dimensions of Perceptron ({})'.format(len(x[0]), self.dim))
-        y = np.zeros(len(x), dtype='float32')
+        y = np.zeros(len(x), dtype='float64') #Set dtype to float64 otherwizie y[i] might be rounded up to 1.0 or down to 0.0 then log will break
         for i in range(len(x)):
             y[i] = self.__softmax(np.sum(self.weights*x[i]))
         return y
@@ -44,15 +44,16 @@ class Perceptron():
         learning_function = self.__get_learning_method(self.learning)
         E = []
         E_val = []
-        bar = progressbar.ProgressBar(max_value=progressbar.UnknownLength)
+        # bar = progressbar.ProgressBar(max_value=progressbar.UnknownLength)
         while not self.stopping_condition:
             y = self.predict(x)
             y_val = self.predict(x_val)
             E.append(self.__cost(x, y, t))
+            print('E: {}, y: min: {}, max {}'.format(E[-1], np.amin(y), np.amax(y)))
             E_val.append(self.__cost(x_val, y_val, t_val))
             delta_weights = learning_function(x, y, t)
             self.weights += delta_weights
-            bar.update(len(E))
+            # bar.update(len(E))
             if len(E) == epochs:
                 self.stopping_condition = True
         return E, E_val
@@ -70,6 +71,7 @@ class Perceptron():
             self.lam = 0.1
         elif learning == 'newton':
             learning_function = self.__learning_newton
+            self.lam = 0.1
         elif learning == 'line':
             learning_function = self.__learning_line
         elif learning == 'conjugate':
@@ -86,7 +88,7 @@ class Perceptron():
             decay = self.lam * np.sum(self.weights**2) / (2*(self.dim+1))
         else:
             decay = 0
-        return -1/N * np.sum(t * np.log10(y) + (1-t) * np.log10(1 - y)) + decay
+        return -1/N * np.sum(np.where(t == 1, np.log(y + 1e-50), np.log(1-y+1e-50))) + decay
 
 
     def __softmax(self, x):
@@ -97,7 +99,6 @@ class Perceptron():
         learning_rate = 1
         delta_w = - learning_rate * self.__gradient(x, y, t)
         if np.all(delta_w == 0):
-            print('Stop')
             self.stopping_condition = True
         return delta_w
 
@@ -111,10 +112,6 @@ class Perceptron():
         # return delta_weights
         return delta_w
 
-<<<<<<< HEAD
-=======
-
->>>>>>> dd29b935ad958612bf01701633888f31f4d50b53
     def __learning_decay(self, x, y, t, dW = None):
         # now add weight decay term and use the momentum learning method
         labda = 0.1
@@ -129,7 +126,7 @@ class Perceptron():
     def __learning_newton(self, x, y, t):
         hessian = self.__hessian(x, y)
         gradient = self.__gradient(x, y, t)
-        return - np.sum(np.linalg.inv(hessian), axis=-1) * gradient
+        return -1*np.linalg.inv(hessian).dot(gradient)
 
     def __learning_line(self,x ,y, t, dW = None):
         #write gradient method with line search
@@ -149,7 +146,7 @@ class Perceptron():
     def __gradient_i(self, i, x, y, t):
         # inputs dim i of x, predict y, true label t
         N = len(x) # Number of samples
-        if self.learning == 'decay':
+        if self.learning == 'decay' or self.learning == 'newton':
             decay = self.lam * self.weights[i] / (self.dim + 1)
         else:
             decay = 0
@@ -165,7 +162,7 @@ class Perceptron():
 
     def __hessian_ij(self, i, j, x, y):
         N = len(x) # Number of samples
-        if self.learning == 'decay' and i == j:
+        if (self.learning == 'decay' or self.learning == 'newton') and i == j:
             decay = self.lam / (self.dim + 1)
         else:
             decay = 0
