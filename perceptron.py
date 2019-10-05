@@ -108,7 +108,18 @@ class Perceptron():
         #choose momentum factor alpha - assignment says you have to try values
         alpha = 0.1
         #calculates gradient and add the momentum
-        delta_w = - learning_rate * self.__gradient(x, y, t) + alpha * self.__gradient(x, y, t)
+
+        # A) use rough approximation method to calculate gradient with momentum 
+        #delta_w = - learning_rate/(1 - alpha) * self.__gradient(x, y, t)
+        # B) add delta-w-min-1 to gradient
+        if 'self.delta_w_min_one' not in globals():
+            #first round delta_w does not exist yet
+            delta_w = - learning_rate * self.__gradient(x, y, t)
+            self.delta_w_min_one = np.copy(delta_w)
+        else:
+            delta_w = - learning_rate * self.__gradient(x, y, t) + alpha * self.delta_w_min_one
+
+        self.delta_w_min_one = np.copy(delta_w)
         # return delta_weights
         return delta_w
 
@@ -117,8 +128,8 @@ class Perceptron():
         learning_rate = 1
         # choose momentum factor alpha - assignment says you have to try values
         alpha = 0.1
-        # calculates gradient and add the momentum
-        delta_w = - learning_rate * self.__gradient(x, y, t) + alpha * self.__gradient(x, y, t)
+        # use approximation method to calculate gradient with momentum
+        delta_w = - learning_rate/(1 - alpha) * self.__gradient(x, y, t) + alpha * self.__gradient(x, y, t)
         # return delta_weights
         return delta_w
 
