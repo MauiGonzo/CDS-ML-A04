@@ -56,6 +56,9 @@ class Perceptron():
             # bar.update(len(E))
             if len(E) == epochs:
                 self.stopping_condition = True
+        class_error_train = self.__class_error(y, t)
+        class_error_test = self.__class_error(y_val, t_val)
+        print('Train classification error: {}%, Test classification error: {}%'.format(class_error_train, class_error_test))
         return E, E_val
 
     def __adjust_input_x(self, x):
@@ -89,6 +92,17 @@ class Perceptron():
         else:
             decay = 0
         return -1/N * np.sum(np.where(t == 1, np.log(y + 1e-50), np.log(1-y+1e-50))) + decay
+
+    def __class_error(self, y, t):
+        # Calculates the classification error, given prediction y and target t
+        # return the classification error
+        N = len(y)
+        n_faults = 0
+        for i in range(N):
+            if np.abs(np.round(y[i]) - t[i]) > 0:
+                n_faults += 1
+        class_error_percentage = np.round(n_faults / N * 100, 2)
+        return class_error_percentage
 
 
     def __softmax(self, x):
