@@ -23,7 +23,6 @@ class Perceptron():
         weights = np.random.normal(loc = 1/(dim+1), scale = 1/np.sqrt(dim+1), size=dim+1)
         return weights
 
-
     def predict(self, x):
         # function that makes a prediction of the label with current weights
         if len(x[0]) == self.dim:
@@ -79,6 +78,8 @@ class Perceptron():
             learning_function = self.__learning_line
         elif learning == 'conjugate':
             learning_function = self.__learning_conjugate
+        elif learning == 'stochastic':
+            learning_function = self.__learning_stochastic
         else:
             print('Error: No learning method given to fit function.')
         return learning_function
@@ -148,7 +149,6 @@ class Perceptron():
             delta_w = - learning_rate * self.__gradient(x, y, t)       # the delta_w_min_one-part during first epoch =0
         self.delta_w_min_one = np.copy(delta_w)
         # return delta_weights
-        # return delta_weights
         return delta_w
 
     def __learning_newton(self, x, y, t):
@@ -170,18 +170,17 @@ class Perceptron():
             y[i] = self.__softmax(np.sum((self.weights + gamma*d)*x[i]))
         return -1/N * np.sum(np.where(t == 1, np.log(y + 1e-50), np.log(1-y+1e-50)))
 
-
     def __learning_conjugate(self, x, y, t):
         if 'self.d' not in globals():
             self.d = -1 * self.__gradient(x, y, t)
         else:
-            self.d = -1 * self.__gradient(x, y, t) + self.__polak_ribiere() * self.d
+            self.d = -1 * self.__gradient(x, y, t) + self.__polak_ribiere(x,y,t) * self.d
         gamma = 1
         res = optimize.minimize_scalar(self.__cost_line_search, args=[x,t,self.d])
         self.weights_old = np.copy(self.weights)
         return res.x * self.d
 
-    def __polak_ribiere(self):
+    def __polak_ribiere(self, x, y, t):
         weights_temp = np.copy(self.weights)
         self.weights = self.weights_old
         g_w0 = self.__gradient(x,y,t)
@@ -190,7 +189,27 @@ class Perceptron():
         return (g_w1 - g_w0).dot(g_w1)/np.sum(g_w1*g_w1)
 
     def __learning_stochastic(self, x, y, t):
-        pass
+        learning_rate = 1
+        mini_batch_size = int(0.01 * len(x))
+        if 'self.mini_batch' not in globals():
+            self.mini_batch = 0
+        if 'self.arguments' not in globals():
+            self.arguments = np.arange(len(x))
+            np.random.shuffle(self.arguments)
+        
+        if self.mini_batch * mini_batch_size > len(x):
+            self.mini_batch = 0
+            np.random.shuffle(self.arguments)
+        begin = self.mini_batch * mini_batch_size
+        if (self.mini_batch+1) * mini_batch_size > len(x):
+            end = len(x)
+        else:
+            end = (self.mini_batch+1) * mini_batch_size
+        arg = self.arguments[begin:end]
+        delta_w = - learning_rate * self.__gradient(x[arg], y[arg], t[arg])
+        # if np.all(delta_w == 0):
+        #     self.stopping_condition = True
+        return delta_w
 
     def __gradient(self, x, y, t):
         g = np.zeros((self.dim+1))
