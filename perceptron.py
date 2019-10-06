@@ -136,8 +136,18 @@ class Perceptron():
     def __learning_decay(self, x, y, t):
         # now add weight decay term and use the momentum learning method
         learning_rate = 1
-        # use approximation method to calculate gradient with momentum
-        delta_w = - learning_rate *  self.__gradient(x, y, t)
+        alpha = 0.1
+        # A) use rough approximation method to calculate gradient with momentum 
+        # delta_w = - learning_rate/(1 - alpha) * self.__gradient(x, y, t)
+        # B) add delta-w-min-1 to gradient
+        if hasattr(self, 'delta_w_min_one' ):
+            # delta_w_min_one has been created
+            delta_w = - learning_rate * self.__gradient(x, y, t) + alpha * self.delta_w_min_one
+        else:
+            # else delta_w_min_one, has not been created
+            delta_w = - learning_rate * self.__gradient(x, y, t)       # the delta_w_min_one-part during first epoch =0
+        self.delta_w_min_one = np.copy(delta_w)
+        # return delta_weights
         # return delta_weights
         return delta_w
 
