@@ -34,7 +34,7 @@ class Perceptron():
             y[i] = self.__softmax(np.sum(self.weights*x[i]))
         return y
 
-    def fit(self, x, t, x_val, t_val, learning = None, epochs = 1000):
+    def fit(self, x, t, x_val, t_val, learning = None, learning_rate=1, alpha=0.1, epochs = 1000):
         if len(x[0]) != self.dim:
             print('Error: dimensions of input ({}) do not match to dimensions of Perceptron ({})'.format(len(x[0]), self.dim))
             return
@@ -44,15 +44,14 @@ class Perceptron():
         learning_function = self.__get_learning_method(self.learning)
         E = []
         E_val = []
-        # bar = progressbar.ProgressBar(max_value=progressbar.UnknownLength)
         while not self.stopping_condition:
             y = self.predict(x)
             y_val = self.predict(x_val)
             E.append(self.__cost(x, y, t))
             E_val.append(self.__cost(x_val, y_val, t_val))
-            print('Epoch: {:3}, E train: {}, E test: {}'.format(len(E), np.round(E[-1],6), np.round(E_val[-1],6)))
-            self.weights += learning_function(x, y, t)
-            # bar.update(len(E))
+            # if len(E)%1000 == 1:
+            #     print('Epoch: {:3}, E train: {}, E test: {}'.format(len(E), np.round(E[-1],6), np.round(E_val[-1],6)))
+            self.weights += learning_function(x, y, t, learning_rate, alpha)
             if len(E) == epochs:
                 self.stopping_condition = True
         class_error_train = self.__class_error(y, t)
@@ -110,18 +109,15 @@ class Perceptron():
         # Calculates softmax of input x
         return (1 + np.exp(-x))**(-1)
 
-    def __learning_gradient(self, x, y, t):
-        learning_rate = 1
+    def __learning_gradient(self, x, y, t, learning_rate, alpha):
         delta_w = - learning_rate * self.__gradient(x, y, t)
         if np.all(delta_w == 0):
             self.stopping_condition = True
         return delta_w
 
-    def __learning_momentum(self, x, y, t):
+    def __learning_momentum(self, x, y, t, learning_rate, alpha):
         # momentum learning method for updating weights
-        learning_rate = 1
-        alpha = 0.1
-        # A) use rough approximation method to calculate gradient with momentum 
+        # A) use rough approximation method to calculate gradient with momentum
         # delta_w = - learning_rate/(1 - alpha) * self.__gradient(x, y, t)
         # B) add delta-w-min-1 to gradient
         if hasattr(self, 'delta_w_min_one' ):
@@ -134,11 +130,9 @@ class Perceptron():
         # return delta_weights
         return delta_w
 
-    def __learning_decay(self, x, y, t):
+    def __learning_decay(self, x, y, t, learning_rate, alpha):
         # now add weight decay term and use the momentum learning method
-        learning_rate = 1
-        alpha = 0.1
-        # A) use rough approximation method to calculate gradient with momentum 
+        # A) use rough approximation method to calculate gradient with momentum
         # delta_w = - learning_rate/(1 - alpha) * self.__gradient(x, y, t)
         # B) add delta-w-min-1 to gradient
         if hasattr(self, 'delta_w_min_one' ):
@@ -151,12 +145,12 @@ class Perceptron():
         # return delta_weights
         return delta_w
 
-    def __learning_newton(self, x, y, t):
+    def __learning_newton(self, x, y, t, learning_rate, alpha):
         hessian = self.__hessian(x, y)
         gradient = self.__gradient(x, y, t)
         return -1*np.linalg.inv(hessian).dot(gradient)
 
-    def __learning_line(self, x, y, t):
+    def __learning_line(self, x, y, t, learning_rate, alpha):
         d = -1 * self.__gradient(x, y, t)
         gamma = 1
         res = optimize.minimize_scalar(self.__cost_line_search, args=[x,t,d])
@@ -170,7 +164,7 @@ class Perceptron():
             y[i] = self.__softmax(np.sum((self.weights + gamma*d)*x[i]))
         return -1/N * np.sum(np.where(t == 1, np.log(y + 1e-50), np.log(1-y+1e-50)))
 
-    def __learning_conjugate(self, x, y, t):
+    def __learning_conjugate(self, x, y, t, learning_rate, alpha):
         if 'self.d' not in globals():
             self.d = -1 * self.__gradient(x, y, t)
         else:
@@ -188,15 +182,14 @@ class Perceptron():
         g_w1 = self.__gradient(x,y,t)
         return (g_w1 - g_w0).dot(g_w1)/np.sum(g_w1*g_w1)
 
-    def __learning_stochastic(self, x, y, t):
-        learning_rate = 1
+    def __learning_stochastic(self, x, y, t, learning_rate, alpha):
         mini_batch_size = int(0.01 * len(x))
         if 'self.mini_batch' not in globals():
             self.mini_batch = 0
         if 'self.arguments' not in globals():
             self.arguments = np.arange(len(x))
             np.random.shuffle(self.arguments)
-        
+
         if self.mini_batch * mini_batch_size > len(x):
             self.mini_batch = 0
             np.random.shuffle(self.arguments)

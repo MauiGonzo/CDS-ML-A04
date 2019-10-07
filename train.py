@@ -41,57 +41,90 @@ trainLabel_t = np.array(trainLabel_t)
 testX_t = np.array(testX_t)/np.amax(testX_t)
 testLabel_t = np.array(testLabel_t)
 
-def grad_algo_testing(learing_type, nr_epochs):
-     model = perceptron.Perceptron(len(trainX_t[0]))
-     t1_start = perf_counter()
-     E, E_val = model.fit(trainX_t, trainLabel_t, testX_t, testLabel_t, learning = learing_type, epochs=nr_epochs)
-     t1_stop = perf_counter()
-     print("Running time for {} = {} seconds".format(learing_type, np.round(t1_stop - t1_start, 2)))
-     plt.plot(E, label='Train')
-     plt.plot(E_val, label='Test')
-     plt.title('Lowest cost: {}'.format(min(E)))
-     plt.legend()
-     plt.show()
-     # no returns
+def grad_algo_testing(learning_type, nr_epochs, lr=1, alpha=0.1):
+    model = perceptron.Perceptron(len(trainX_t[0]))
+    t1_start = perf_counter()
+    E, E_val = model.fit(trainX_t, trainLabel_t, testX_t, testLabel_t, learning = learning_type, learning_rate=lr, epochs=nr_epochs)
+    t1_stop = perf_counter()
+    print("Running time for {} = {} seconds".format(learning_type, np.round(t1_stop - t1_start, 2)))
+    plt.plot(E, label='Train, lr={}, min cost={}'.format(lr, np.round(min(E), 4)))
+    plt.plot(E_val, label='Test, lr={}, min cost={}'.format(lr, np.round(min(E_val), 4)))
+    plt.title('Training with learning method: {}'.format(learning_type))
+    plt.xlabel('Steps')
+    plt.ylabel('Cost')
+    plt.yscale('log', nonposy='clip')
+    plt.legend()
+    plt.savefig('cost_{}.png'.format(learning_type))
+    plt.clf()
+    plt.close()
 
-#E = model.fit(trainX_t, trainLabel_t, learning = 'momentum', epochs=100)
 
-#E = model.fit(trainX_t, trainLabel_t, learning = 'decay', epochs=100)
-#use the gradient algorithm testing function,
-# grad_algo_testing('gradient', 10)
-# grad_algo_testing('momentum', 10)
-# grad_algo_testing('decay',    10)
-# grad_algo_testing('newton', 10)
-# grad_algo_testing('line', 10)
-# grad_algo_testing('conjugate', 10)
-grad_algo_testing('stochastic', 500)
-#
-# print('Training gradient:')
-# E_train_gradient, E_test_gradient = model_gradient.fit(trainX_t, trainLabel_t, testX_t, testLabel_t, learning = 'gradient', epochs=10)
-#
-# print('Training momentum:')
-# E_train_momentum, E_test_momentum = model_momentum.fit(trainX_t, trainLabel_t, testX_t, testLabel_t, learning = 'momentum', epochs=10)
-#
-# print('Training decay:')
-# E_train_decay, E_test_decay = model_decay.fit(trainX_t, trainLabel_t, testX_t, testLabel_t, learning = 'decay', epochs=10)
-#
-#
-# 'Make plots'
-# fig, axs = plt.subplots(2, 2)
-#
-# axs[0,0].plot(range(len(E_train_gradient)), E_train_gradient, label='Train')
-# axs[0,0].plot(range(len(E_test_gradient)), E_test_gradient, label='Test')
-# axs[0,0].set_title('Gradient: Lowest cost train: {}, lowest cost test: {}'.format(np.round(min(E_train_gradient), 4), np.round(min(E_test_gradient), 4)))
-# axs[0,0].legend()
-#
-#
-# axs[0,1].plot(range(len(E_train_momentum)), E_train_momentum, label='Train')
-# axs[0,1].plot(range(len(E_test_momentum)), E_test_momentum, label='Test')
-# axs[0,1].set_title('Momentum: Lowest cost train: {}, lowest cost test: {}'.format(np.round(min(E_train_momentum), 4), np.round(min(E_test_momentum), 4)))
-# axs[0,1].legend()
-#
-# axs[1,0].plot(range(len(E_train_decay)), E_train_decay, label='Train')
-# axs[1,0].plot(range(len(E_test_decay)), E_test_decay, label='Test')
-# axs[1,0].set_title('Decay: Lowest cost train: {}, lowest cost test: {}'.format(np.round(min(E_train_decay), 4), np.round(min(E_test_decay), 4)))
-# axs[1,0].legend()
-# plt.show()
+'Training with gradient descent learning method'
+'Search for best parameters'
+for lr in [0.5,0.9,1,1.1,2]:
+    model = perceptron.Perceptron(len(trainX_t[0]))
+    t1_start = perf_counter()
+    E, E_val = model.fit(trainX_t, trainLabel_t, testX_t, testLabel_t, learning = 'gradient', learning_rate=lr, epochs=500)
+    t1_stop = perf_counter()
+    print("Running time for {} = {} seconds".format('gradient', np.round(t1_stop - t1_start, 2)))
+    plt.plot(E, label='Train, lr={}, alpha={}, min cost={}'.format(lr, alpha, np.round(min(E), 4)))
+    plt.plot(E_val, label='Test, lr{}, alpha={}, min cost={}'.format(lr, alpha, np.round(min(E_val), 4)))
+plt.title('Training with learning method: {}'.format('gradient'))
+plt.xlabel('Steps')
+plt.ylabel('Cost')
+plt.yscale('log', nonposy='clip')
+plt.legend()
+plt.savefig('cost_{}.png'.format('gradient'))
+plt.clf()
+plt.close()
+
+'Training with momentum learning method'
+'Search for best parameters'
+for lr in [0.5, 1, 2]:
+    for alpha in [0.05, 0.1, 0.2]:
+        model = perceptron.Perceptron(len(trainX_t[0]))
+        t1_start = perf_counter()
+        E, E_val = model.fit(trainX_t, trainLabel_t, testX_t, testLabel_t, learning = 'momentum', learning_rate=lr, alpha=alpha, epochs=500)
+        t1_stop = perf_counter()
+        print("Running time for {} = {} seconds".format('momentum', np.round(t1_stop - t1_start, 2)))
+        plt.plot(E, label='Train, lr={}, alpha={}, min cost={}'.format(lr, alpha, np.round(min(E), 4)))
+        plt.plot(E_val, label='Test, lr{}, alpha={}, min cost={}'.format(lr, alpha, np.round(min(E_val), 4)))
+plt.title('Training with learning method: {}'.format('momentum'))
+plt.xlabel('Steps')
+plt.ylabel('Cost')
+plt.yscale('log', nonposy='clip')
+plt.legend()
+plt.savefig('cost_{}.png'.format('momentum'))
+plt.clf()
+plt.close()
+
+'Training with weight decay learning method'
+grad_algo_testing('decay',    1000)
+
+'Training with weight decay learning method'
+grad_algo_testing('newton', 10)
+
+'Training with line search learning method'
+grad_algo_testing('line', 100)
+
+'Training with conjugate gradient descent learning method'
+grad_algo_testing('conjugate', 50)
+
+'Training with stochastic gradient descent learning method'
+'Search for best parameters'
+for lr in [0.5,0.9,1,1.1,2]:
+    model = perceptron.Perceptron(len(trainX_t[0]))
+    t1_start = perf_counter()
+    E, E_val = model.fit(trainX_t, trainLabel_t, testX_t, testLabel_t, learning = 'stochastic', learning_rate=lr, epochs=500)
+    t1_stop = perf_counter()
+    print("Running time for {} = {} seconds".format('stochastic', np.round(t1_stop - t1_start, 2)))
+    plt.plot(E, label='Train, lr={}, min cost={}'.format(lr, np.round(min(E), 4)))
+    plt.plot(E_val, label='Test, lr={}, min cost={}'.format(lr, np.round(min(E_val), 4)))
+plt.title('Training with learning method: {}'.format('stochastic'))
+plt.xlabel('Steps')
+plt.ylabel('Cost')
+plt.yscale('log', nonposy='clip')
+plt.legend()
+plt.savefig('cost_{}.png'.format('stochastic'))
+plt.clf()
+plt.close()
